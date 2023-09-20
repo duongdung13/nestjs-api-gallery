@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  postgres:
+    container_name: postgres-api-gallery
+    image: postgres:12-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+  
+volumes:
+  postgres:
