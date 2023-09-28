@@ -18,7 +18,6 @@ async function bootstrap() {
     preflightContinue: false,
   });
 
-
   const configService = app.get(ConfigService);
   const PORT = configService.get<string>('PORT');
   await app.listen(PORT);
