@@ -1,13 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateImageDto } from './dto/create-image.dto';
 import { InjectModel as NestInjectModel } from '@nestjs/mongoose';
 import { Image, ImageDocument } from './schemas/image.schema';
 import { genSaltSync, hashSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import aqp from 'api-query-params';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ImagesService {
+  private readonly logger = new Logger(ImagesService.name);
+
   constructor(
     @NestInjectModel(Image.name)
     private imageModel: SoftDeleteModel<ImageDocument>,
@@ -64,5 +67,10 @@ export class ImagesService {
 
     let image = await this.imageModel.findOne({ _id: id });
     return image;
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  handleCron() {
+    this.logger.debug('>>> Start crawl lexica.art');
   }
 }
