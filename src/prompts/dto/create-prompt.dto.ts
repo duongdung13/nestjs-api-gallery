@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateImageDto {
+export class CreatePromptDto {
   @IsNotEmpty({
     message: 'Url khong duoc de trong',
   })
@@ -11,7 +11,7 @@ export class CreateImageDto {
   })
   name: string;
 
-  image_id: string;
+  prompt_id: string;
 
   @IsNotEmpty({
     message: 'Prompt khong duoc de trong',
