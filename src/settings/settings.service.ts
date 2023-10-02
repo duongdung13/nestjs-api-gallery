@@ -44,4 +44,15 @@ export class SettingsService {
       },
     );
   }
+
+  async updateByKeyName(key_name: string, key_value: string) {
+    return await this.settingModel.updateOne(
+      {
+        key_name: key_name,
+      },
+      {
+        key_value: key_value,
+      },
+    );
+  }
 }

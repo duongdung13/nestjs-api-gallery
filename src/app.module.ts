@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { ImagesModule } from './images/images.module';
+import { PromptsModule } from './prompts/prompts.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SettingsService } from './settings/settings.service';
 import { LEXICA_CRAWL_CURSOR } from './common/const';
@@ -32,7 +32,7 @@ import { SettingsModule } from './settings/settings.module';
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
-    ImagesModule,
+    PromptsModule,
     SettingsModule,
   ],
   controllers: [AppController],
