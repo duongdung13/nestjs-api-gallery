@@ -31,11 +31,20 @@ export class PromptsService {
     };
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAll(
+    currentPage: number,
+    limit: number,
+    keyword: string,
+    qs: string,
+  ) {
     const { filter, sort, projection, population } = aqp(qs);
-
     delete filter.page;
     delete filter.limit;
+    delete filter.keyword;
+
+    if (keyword) {
+      filter.name = { $regex: keyword, $options: 'i' };
+    }
 
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;

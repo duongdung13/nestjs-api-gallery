@@ -27,9 +27,10 @@ export class PromptsController {
   findAll(
     @Query('page') currentPage: string,
     @Query('limit') limit: string,
+    @Query('keyword') keyword: string,
     @Query() qs: string,
   ) {
-    return this.promptsService.findAll(+currentPage, +limit, qs);
+    return this.promptsService.findAll(+currentPage, +limit, keyword, qs);
   }
 
   @Get(':id')
