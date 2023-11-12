@@ -41,19 +41,27 @@ import { SettingsModule } from './settings/settings.module';
 export class AppModule implements OnModuleInit {
   constructor(private readonly settingService: SettingsService) {}
   public async onModuleInit(): Promise<void> {
-    const { CRAWL_CURSOR, INIT_CURSOR } = LEXICA_CRAWL_CURSOR;
+    const { CRAWL_CURSOR, INIT_CURSOR, CRAWL_PAGE, INIT_PAGE } =
+      LEXICA_CRAWL_CURSOR;
 
     const crawlCursor = await this.settingService.getSettingByName(
       CRAWL_CURSOR,
     );
-
     if (!crawlCursor) {
       const objCrawlCursor: CreateSettingDto = {
         key_name: CRAWL_CURSOR,
         key_value: INIT_CURSOR,
       };
-
       await this.settingService.create(objCrawlCursor);
+    }
+
+    const crawlPage = await this.settingService.getSettingByName(CRAWL_PAGE);
+    if (!crawlPage) {
+      const objCrawlPage: CreateSettingDto = {
+        key_name: CRAWL_PAGE,
+        key_value: INIT_PAGE,
+      };
+      await this.settingService.create(objCrawlPage);
     }
   }
 }

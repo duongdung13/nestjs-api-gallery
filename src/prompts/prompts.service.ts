@@ -83,18 +83,77 @@ export class PromptsService {
     return prompt;
   }
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
-  async cronCrawlLexica() {
-    this.logger.debug('>>>>>> Start crawl lexica.art');
+  // @Cron(CronExpression.EVERY_5_MINUTES)
+  // async cronCrawlLexica() {
+  //   this.logger.debug('>>>>>> Start crawl lexica.art');
 
-    const { CRAWL_CURSOR } = LEXICA_CRAWL_CURSOR;
-    const crawlCursor = await this.settingsService.getSettingByName(
-      CRAWL_CURSOR,
-    );
-    console.log('>>> cursor', crawlCursor.key_value);
+  //   const { CRAWL_CURSOR } = LEXICA_CRAWL_CURSOR;
+  //   const crawlCursor = await this.settingsService.getSettingByName(
+  //     CRAWL_CURSOR,
+  //   );
+  //   console.log('>>> cursor', crawlCursor.key_value);
+
+  //   const dataCrawl = await superagent
+  //     .post(this.configService.get<string>('LEXICA_API'))
+  //     .set(
+  //       'Cookie',
+  //       '__Host-next-auth.csrf-token=' +
+  //         this.configService.get<string>('LEXICA_TOKEN') +
+  //         '; __Secure-next-auth.callback-url=https%3A%2F%2Flexica.art',
+  //     )
+  //     .set('content-type', 'application/json')
+  //     .send({
+  //       text: '',
+  //       searchMode: 'images',
+  //       source: 'search',
+  //       cursor: +crawlCursor.key_value,
+  //       model: 'lexica-aperture-v2',
+  //     });
+
+  //   const prompts = parseNested(dataCrawl.text);
+
+  //   for (const item of prompts.prompts) {
+  //     const existPrompt = await this.findByPromptId(item.id);
+  //     if (!existPrompt) {
+  //       const promptItem: CreatePromptDto = {
+  //         url:
+  //           this.configService.get<string>('LEXICA_BASE_IMAGE') +
+  //           '/' +
+  //           item.images[0]['id'],
+  //         name: item.prompt,
+  //         prompt_id: item.id,
+  //         prompt: item.prompt,
+  //         dimension: item.width + 'x' + item.height,
+  //         timestamp: item.timestamp,
+  //       };
+  //       this.create(promptItem);
+  //       this.logger.debug('>>> Save prompt id ', item.id);
+  //     } else {
+  //       this.logger.debug('>>> Exist prompt id ', item.id);
+  //     }
+  //   }
+
+  //   const newCursor = +crawlCursor.key_value + 50;
+  //   this.settingsService.updateByKeyName(CRAWL_CURSOR, newCursor.toString());
+
+  //   this.logger.debug('>>>>>> Finish crawl lexica.art');
+  // }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async cronCrawlLexica() {
+    this.logger.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ');
+    this.logger.debug('>>>>>> Start sync');
+
+    const { CRAWL_PAGE } = LEXICA_CRAWL_CURSOR;
+    const crawlPage = await this.settingsService.getSettingByName(CRAWL_PAGE);
+    console.log('>>> Page Current: ', crawlPage);
 
     const dataCrawl = await superagent
-      .post(this.configService.get<string>('LEXICA_API'))
+      .get(
+        'https://api-prompt.eplmaster.net/api/prompts?page=' +
+          +crawlPage.key_value +
+          '&per_page=20',
+      )
       .set(
         'Cookie',
         '__Host-next-auth.csrf-token=' +
@@ -102,40 +161,35 @@ export class PromptsService {
           '; __Secure-next-auth.callback-url=https%3A%2F%2Flexica.art',
       )
       .set('content-type', 'application/json')
-      .send({
-        text: '',
-        searchMode: 'images',
-        source: 'search',
-        cursor: +crawlCursor.key_value,
-        model: 'lexica-aperture-v2',
-      });
+      .send({});
 
     const prompts = parseNested(dataCrawl.text);
 
-    for (const item of prompts.prompts) {
-      const existPrompt = await this.findByPromptId(item.id);
-      if (!existPrompt) {
-        const promptItem: CreatePromptDto = {
-          url:
-            this.configService.get<string>('LEXICA_BASE_IMAGE') +
-            '/' +
-            item.images[0]['id'],
-          name: item.prompt,
-          prompt_id: item.id,
-          prompt: item.prompt,
-          dimension: item.width + 'x' + item.height,
-          timestamp: item.timestamp,
-        };
-        this.create(promptItem);
-        this.logger.debug('>>> Save prompt id ', item.id);
-      } else {
-        this.logger.debug('>>> Exist prompt id ', item.id);
-      }
+    //console.log('>>> prompts', prompts);
+
+    for (const item of prompts.data) {
+      // const existPrompt = await this.findByPromptId(item.image_id);
+      // if (existPrompt) {
+      const promptItem: CreatePromptDto = {
+        url: item.url_list,
+        name: item.name,
+        prompt_id: item.image_id,
+        prompt: item.prompt,
+        dimension: item.dimension,
+        timestamp: item.enqueue_time,
+      };
+      //console.log('>>> promptItem', promptItem);
+      this.create(promptItem);
+      this.logger.debug('>>> Save id: ', item.id);
+      // } else {
+      //   this.logger.debug('>>> Exist prompt id ', item.id);
+      // }
     }
 
-    const newCursor = +crawlCursor.key_value + 50;
-    this.settingsService.updateByKeyName(CRAWL_CURSOR, newCursor.toString());
+    const newPage = +crawlPage.key_value + 1;
+    this.settingsService.updateByKeyName(CRAWL_PAGE, newPage.toString());
 
-    this.logger.debug('>>>>>> Finish crawl lexica.art');
+    this.logger.debug('>>>>>> Finish Sync');
+    this.logger.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ');
   }
 }
