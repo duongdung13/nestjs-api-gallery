@@ -12,7 +12,7 @@ import { SettingsService } from './settings/settings.service';
 import { LEXICA_CRAWL_CURSOR } from './common/const';
 import { CreateSettingDto } from './settings/dto/create-setting.dto';
 import { SettingsModule } from './settings/settings.module';
-
+// comment code xem nào
 @Module({
   imports: [
     MongooseModule.forRootAsync({
